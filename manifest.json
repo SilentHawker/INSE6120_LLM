@@ -1,1 +1,9 @@
-
+{
+    "name":"Privacy Policy Summmarizer",
+    "description":"Summarize privacy policies",
+    "version":"1.0",
+    "manifest_version":3,
+    "action":{
+        "default_popup":"extension.html"
+    }
+}
