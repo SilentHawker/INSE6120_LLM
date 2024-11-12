@@ -2,17 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>URL Extractor</title>
     <style>
-        body { width: 200px; padding: 10px; }
-        button { width: 100%; }
+        /* Styling for the scrollable output */
+        #output-container {
+            width: 100%;
+            width: 300px;
+            padding: 10px;
+            background-color: rgb(173, 230, 187);
+            word-break: break-all; /* Prevent long URLs from overflowing */
+        }
+        button { 
+        width: 100%; 
+        background-color: rgb(230, 196, 173);}
     </style>
 </head>
 <body>
-    <button id="extract-url">Extract URL</button>
-    <div id="output"></div>
+    <!-- Button to extract URL -->
+    <button id="extract-url">Click here to extract URL</button>
 
-    <script src="popup2.js"></script>
+    <!-- Scrollable container for the URL output -->
+    <div id="output-container">
+        <span id="output"></span>
+    </div>
+
+    <!-- Script -->
+    <script src="Extension_PopupJS.js"></script>
 </body>
 </html>

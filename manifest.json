@@ -1,9 +1,15 @@
 {
-    "name":"Privacy Policy Summmarizer",
-    "description":"Summarize privacy policies",
-    "version":"1.0",
-    "manifest_version":3,
-    "action":{
-        "default_popup":"extension.html"
+    "manifest_version": 3,
+    "name": "Web URL Extractor",
+    "version": "1.0",
+    "description": "Extracts URL from the current webpage.",
+    "permissions": ["activeTab"],
+    "action": {
+      "default_popup": "Extension_PopupHTML.html",
+      "default_icon": "icon.png"
+    },
+    "background": {
+      "service_worker": "URL_Background_Processing.js"
     }
-}
+  }
+  
