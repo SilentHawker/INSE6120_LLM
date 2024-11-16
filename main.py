@@ -8,18 +8,18 @@ from langchain.callbacks.streaming_stdout import (
 
 # ----------------------------- Model set up ----------------------------- #
 
-with open('prompt_template.txt', 'r') as file:
-    template = file.read()
+# with open('prompt_template.txt', 'r') as file:
+#     template = file.read()
 
-callback_man = CallbackManager([StreamingStdOutCallbackHandler()])
-model = OllamaLLM(model="llama3.2",
-                  callback_manager=callback_man, temperature=0.4, num_ctx=1024)
-prompt = ChatPromptTemplate.from_template(template)
-chain = prompt | model
+# callback_man = CallbackManager([StreamingStdOutCallbackHandler()])
+# model = OllamaLLM(model="llama3.2",
+#                   callback_manager=callback_man, temperature=0.4, num_ctx=1024)
+# prompt = ChatPromptTemplate.from_template(template)
+# chain = prompt | model
 
-# Hardcoded HTML source code of the privacy policy page
-with open('test_policy1.html', 'r') as file:
-    html_as_string = file.read()
+# # Hardcoded HTML source code of the privacy policy page
+# with open('test_policy1.html', 'r') as file:
+#     html_as_string = file.read()
 
 # ----------------------------- Summarization process ----------------------------- #
 
@@ -36,11 +36,21 @@ def extract_policy_text(html):
     """
     soup = bs(html, 'html.parser')
 
-    policy_text = soup.get_text(separator="\n").strip()
+    # Remove any unwanted elements commonly found in privacy policy pages
+    for element in soup(['script', 'style', 'footer', 'nav', 'aside']):
+        element.decompose()
+
+    # Extract text content with clean formatting
+    main_content = soup.find(attrs={'id': 'main-content'}) or soup
+    policy_text = main_content.get_text(separator="\n").strip()
+
+    # Condense multiple newlines and whitespace for cleaner output
+    policy_text = '\n'.join([line.strip() for line in policy_text.splitlines() if line.strip()])
+
     return policy_text
 
 
-policy_text = extract_policy_text(html_as_string)
+# policy_text = extract_policy_text(html_as_string)
 
 
 def handle_conversation():
@@ -61,4 +71,8 @@ def handle_conversation():
 
 
 if __name__ == "__main__":
-    handle_conversation()
+    # handle_conversation()
+    with open('test_policy2.html', 'r') as file:
+        html_as_string = file.read()
+    policy_text = extract_policy_text(html_as_string)
+    print(policy_text)
