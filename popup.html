@@ -1,14 +1,26 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="popup.css">
-        <title>Privacy Policy Summarizer</title>
-    </head>
-    <body>
-        <h1>Privacy Policy Summarizer</h1>
-        <p>Click the button below to find the privacy policy of the current website.</p>
-        <button id="analyze-btn">Analyze</button>
-    </body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy Summarizer</title>
+    <style>
+      /* Styling as before */
+      /* ... */
+      /* Add this to give a distinct style to the result container */
+      #summary {
+        margin-top: 10px;
+        font-size: 13px;
+        color: #2a6df4;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Privacy Policy Summarizer</h1>
+    <p>Analyze and summarize privacy policies on the websites you visit for a quick overview.</p>
+    <button class="summarize-btn">Summarize Now</button>
+    <p id="summary">Result will appear here...</p>
+    <p class="footer">Powered by LLM technology</p>
+    <script src="popup.js"></script>
+  </body>
 </html>
