@@ -4,21 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Privacy Policy Summarizer</title>
-    <style>
-      /* Styling as before */
-      /* ... */
-      /* Add this to give a distinct style to the result container */
-      #summary {
-        margin-top: 10px;
-        font-size: 13px;
-        color: #2a6df4;
-      }
-    </style>
+    <link rel="stylesheet" href="popup.css" />
+    <script src="jquery-3.7.1.min.js"></script>
   </head>
   <body>
     <h1>Privacy Policy Summarizer</h1>
-    <p>Analyze and summarize privacy policies on the websites you visit for a quick overview.</p>
-    <button class="summarize-btn">Summarize Now</button>
+    <p>
+      Analyze and summarize privacy policies on the websites you visit for a
+      quick overview.
+    </p>
+    <button id="sum-btn" class="summarize-btn" method="POST">
+      Summarize Now
+    </button>
+    <div id="errorAlert" class="alert">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-content">
+        <h4 class="alert-title">Error</h4>
+        <p class="alert-message">Something went wrong. Please try again.</p>
+      </div>
+      <button class="alert-close">×</button>
+    </div>
     <p id="summary">Result will appear here...</p>
     <p class="footer">Powered by LLM technology</p>
     <script src="popup.js"></script>

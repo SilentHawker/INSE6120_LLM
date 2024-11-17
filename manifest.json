@@ -1,9 +1,16 @@
 {
-    "name":"Privacy Policy Summmarizer",
-    "description":"Summarize privacy policies",
-    "version":"1.0",
-    "manifest_version":3,
-    "action":{
-        "default_popup":"extension.html"
+    "name": "Privacy Policy Summmarizer",
+    "description": "Summarize privacy policies",
+    "version": "1.0",
+    "manifest_version": 3,
+    "permissions": [
+        "activeTab",
+        "tabs"
+    ],
+    "host_permissions": [
+        "http://localhost:8000/*"
+    ],
+    "action": {
+        "default_popup": "popup.html"
     }
 }

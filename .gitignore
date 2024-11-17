@@ -219,3 +219,4 @@ cython_debug/
 #.idea/
 google-chrome-stable_current_amd64.deb
 privacy_policy_link.txt
+test.py

@@ -1,125 +1,153 @@
-import requests
-from bs4 import BeautifulSoup as bs
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+import time
+from selenium.common.exceptions import WebDriverException
+from urllib.parse import urljoin
 
-def setup_selenium_driver():
+
+def setup_driver():
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    
-    service = Service(ChromeDriverManager().install())  # Automatically downloads the driver
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-    return driver
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--disable-http2')
+    chrome_options.add_argument(
+        '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
 
-def find_privacy_policy_link(url, output_file="privacy_policy_link.txt"):
-    """
-    Finds and saves a privacy policy link on a website, using Selenium for JavaScript-heavy sites.
+    return webdriver.Chrome(service=Service(ChromeDriverManager().install()),
+                            options=chrome_options)
 
-    Args:
-        url (str): URL of the main website (e.g., "https://stripe.com").
-        output_file (str): File to save the privacy policy link.
 
-    Returns:
-        str: Privacy policy URL or None if not found.
-    """
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-                      '(KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-    }
-    
-    session = requests.Session()
-    retries = Retry(total=2, backoff_factor=1, status_forcelist=[403, 429, 500, 502, 503, 504])
-    session.mount("https://", HTTPAdapter(max_retries=retries))
-    session.headers.update(headers)
+def find_links_by_keywords(driver, keywords):
+    """Find links containing any of the given keywords in href or text"""
+    all_matching_links = []
 
+    for keyword in keywords:
+        xpath_expressions = [
+            f"//a[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{keyword.lower()}')]",
+            f"//a[contains(translate(@href,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{keyword.lower()}')]"
+        ]
+
+        for xpath in xpath_expressions:
+            elements = driver.find_elements(By.XPATH, xpath)
+            for element in elements:
+                href = element.get_attribute('href')
+                text = element.text
+                if href:
+                    all_matching_links.append({
+                        'href': href,
+                        'text': text,
+                        'keyword': keyword
+                    })
+
+    return all_matching_links
+
+
+def find_privacy_policy_link(url):
+    driver = None
     try:
-        response = session.get(url, timeout=3)
-        response.raise_for_status()
-        soup = bs(response.text, 'html.parser')
-        
-        # First check all <a> tags for "privacy" in href or text
-        link_url = None
-        for link in soup.find_all('a', href=True):
-            href = link['href']
-            text = link.get_text(strip=True).lower()
-            if 'privacy' in href.lower() or 'privacy' in text:
-                link_url = href
-                break
-        
-        # Convert relative URL to absolute if necessary
-        if link_url and not link_url.startswith('http'):
-            link_url = requests.compat.urljoin(url, link_url)
+        print(f"\nStep 1: Accessing initial URL: {url}")
+        driver = setup_driver()
+        driver.set_page_load_timeout(30)
+        driver.get(url)
+        time.sleep(10)
 
-        # If no link was found, try with Selenium for JavaScript-heavy sites
-        if not link_url:
-            print("Attempting with Selenium for JavaScript-rendered content...")
-            driver = setup_selenium_driver()
-            driver.get(url)
+        # First, find policy/privacy related links
+        print("\nSearching for initial policy/privacy links...")
+        initial_keywords = ['policy', 'privacy', 'legal']
+        initial_links = find_links_by_keywords(driver, initial_keywords)
 
-            try:
-                # Wait for footer to load, if it exists
-                WebDriverWait(driver, 120).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "privacy")))
-                soup = bs(driver.page_source, 'html.parser')
-                for link in soup.find_all('a', href=True):
-                    href = link['href']
-                    text = link.get_text(strip=True).lower()
-                    if 'privacy' in href.lower() or 'privacy' in text:
-                        link_url = href
-                        break
-            finally:
-                driver.quit()
-
-        # Save found link or return None
-        if link_url:
-            if not link_url.startswith('http'):
-                link_url = requests.compat.urljoin(url, link_url)
-            with open(output_file, 'w') as file:
-                file.write(link_url)
-            print(f"Privacy policy found: {link_url}")
-            return link_url
-        else:
-            print("Privacy policy link not found.")
+        if not initial_links:
+            print("No initial policy links found")
             return None
 
-    except requests.RequestException as e:
-        print(f"An error occurred: {e}")
+        # Filter and prioritize links
+        policy_page_link = None
+        for link in initial_links:
+            href = link['href']
+            # Prioritize links that look like policy pages
+            if any(x in href.lower() for x in ['/privacy', 'privacy', '_privacy', '-privacy', '/policy', '/legal']):
+                policy_page_link = href
+                print(f"\nFound policy page: {policy_page_link}")
+                break
+
+        if not policy_page_link:
+            return None
+
+        # Navigate to the policy page
+        print(f"\nStep 2: Navigating to policy page: {policy_page_link}")
+        driver.get(policy_page_link)
+        # time.sleep(5)
+
+        # Look for specific privacy policy link
+        print("\nSearching for specific privacy policy link...")
+        privacy_keywords = ['privacy policy',
+                            'privacy statement', 'data protection']
+        privacy_links = find_links_by_keywords(driver, privacy_keywords)
+
+        # Filter for the most likely privacy policy link
+        final_link = None
+        for link in privacy_links:
+            href = link['href']
+            # Look for URLs that specifically indicate privacy policy
+            if 'privacy' in href.lower() or 'privacy/policy' in href.lower() or 'privacy-policy' in href.lower() or 'privacy policy' in link['text'].lower():
+                final_link = href
+                print(f"\nFound specific privacy policy: {final_link}")
+                break
+
+        return final_link if final_link else policy_page_link
+
+    except WebDriverException as e:
+        print(f"WebDriver error: {str(e)}")
         return None
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
+        return None
+    finally:
+        if driver:
+            driver.quit()
 
 
-  
+# Test the function
+if __name__ == "__main__":
+    test_urls = [
+        "https://airbnb.com",
+        "https://replika.com",
+        "https://oracle.com",
+        "https://openai.com",
+        "https://salesforce.com",
+        "https://www.adobe.com",
+        "https://www.amazon.com",
+        "https://www.facebook.com",
+        "https://open.spotify.com",
+        "https://tesla.com",
+        "https://zoom.us",
+        "https://twitter.com",
+        "https://microsoft.com",
+        "https://google.com",
+        "https://linkedin.com",
+        "https://github.com",
+        "https://instagram.com",
+        "https://wikipedia.org",
+        "https://bbc.com",
+        "https://nytimes.com",
+        "https://stackoverflow.com",
+        "https://reddit.com",
+        "https://wordpress.com",
+        "https://pinterest.com",
+        "https://yahoo.com",
+        "https://ebay.com",
+        "https://paypal.com",
+        "https://snapchat.com",
+        "https://discord.com",
+    ]
 
-
-# Testing `find_privacy_policy_link` function with various popular websites
-# honestly think some of them aren't automatable since they are platforms that can't 
-# find_privacy_policy_link("https://google.com")
-# find_privacy_policy_link("https://facebook.com") // 400 bad client everytime
-# find_privacy_policy_link("https://twitter.com")
-# find_privacy_policy_link("https://linkedin.com")
-# find_privacy_policy_link("https://amazon.com")
-# find_privacy_policy_link("https://apple.com")
-# find_privacy_policy_link("https://netflix.com")
-# find_privacy_policy_link("https://microsoft.com")
-# find_privacy_policy_link("https://adobe.com/ca") // selenium can't handle, maybe a longer wait?
-# find_privacy_policy_link("https://open.spotify.com/") // selenium can't handle, maybe a longer wait?
-# find_privacy_policy_link("https://zoom.us") // selenium can't handle, maybe a longer wait?
-# find_privacy_policy_link("https://paypal.com")
-# find_privacy_policy_link("https://salesforce.com") // selenium can't handle, maybe a longer wait?
-# find_privacy_policy_link("https://dropbox.com")
-# find_privacy_policy_link("https://airbnb.com") // selenium can't handle, maybe a longer wait?
-# find_privacy_policy_link("https://github.com")
-# find_privacy_policy_link("https://stripe.com")
-# find_privacy_policy_link("https://tesla.com") // probably blocked
-# find_privacy_policy_link("https://oracle.com") // selenium can't handle, maybe a longer wait?
-# find_privacy_policy_link("https://uber.com")
-# find_privacy_policy_link("https://openai.com/")  // probably blocked 
-
-
+    for test_url in test_urls:
+        print(f"\nTesting URL: {test_url}")
+        result = find_privacy_policy_link(test_url)
+        print(f"Final privacy policy URL: {result}")
+        print("-" * 50)
