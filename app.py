@@ -9,8 +9,70 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 from selenium.common.exceptions import WebDriverException
 from urllib.parse import urljoin
+from langchain_ollama import OllamaLLM
+from langchain_core.prompts import ChatPromptTemplate
+from bs4 import BeautifulSoup as bs
+from langchain.callbacks.manager import CallbackManager
+from langchain.callbacks.streaming_stdout import (
+    StreamingStdOutCallbackHandler,
+)
 
 app = Flask(__name__)
+
+# ----------------------------- Model set up ----------------------------- #
+
+
+def setup_model():
+
+    with open('prompt_template.txt', 'r') as file:
+        template = file.read()
+
+    callback_man = CallbackManager([StreamingStdOutCallbackHandler()])
+    model = OllamaLLM(model="llama3.2",
+                      callback_manager=callback_man, temperature=0.4, num_ctx=1024)
+    prompt = ChatPromptTemplate.from_template(template)
+    chain = prompt | model
+    return chain
+
+# ----------------------------- Summarization process ----------------------------- #
+
+
+def extract_policy_text(html):
+    """
+    Extracts the visible text content from the provided HTML code of a privacy policy page.
+
+    Args:
+        html (str): The HTML content as a string from which the policy text will be extracted.
+
+    Returns:
+        str: A string containing the visible text content from the HTML, separated by new lines.
+    """
+
+    soup = bs(html.content, 'html.parser')
+    body = soup.find('body')
+    policy_text = body.get_text(separator="\n").strip()
+    return policy_text
+
+
+def handle_summarization(chain, policy_text):
+    """
+    Handles the process of summarizing a privacy policy using a local language model (LocalLLM).
+
+    This function prints a message indicating the start of the summarization process and invokes
+    the language model to generate a summary of the provided policy text.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    print("Summarizing the privacy policy...")
+    result = chain.invoke({"policy_text": policy_text})
+
+    return result
+
+# ----------------------------- Policy URL finding process ----------------------------- #
 
 
 def setup_driver():
@@ -161,7 +223,15 @@ def search_privacy_policy():
     if not privacy_policy_url:
         return jsonify({'error': "Unable to find privacy policy page, please try another website.", })
     else:
-        return jsonify({'success': 'Url is: '+privacy_policy_url, })
+        try:
+            model_chain = setup_model()
+            html_as_string = requests.get(privacy_policy_url)
+            policy_text = extract_policy_text(html_as_string)
+            summary = handle_summarization(model_chain, policy_text)
+            return jsonify({'success': summary, })
+        except Exception as e:
+            print("[-]Error: "+e)
+        return jsonify({'error': "Error while summarizing, please try again or try another website.", })
 
 
 if __name__ == '__main__':
