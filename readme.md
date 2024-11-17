@@ -110,10 +110,29 @@ After activating the virtual environment, install the required dependencies by r
 pip install -r requirements.txt
 ```
 
-## Step 8: Start the Program
+## Step 8: Load the Extension in Google Chrome
 
-At this point, you have everything set up! You can now start the program using :
+To test and use the extension, you'll need to load it into Google Chrome.
 
-```bash
-python main.py
-```
+1. Open Google Chrome and navigate to the Extensions page by typing `chrome://extensions/` in the address bar.
+2. In the top-right corner, enable **Developer mode** by toggling the switch.
+3. Click on the **Load unpacked** button.
+4. In the file dialog that opens, locate and select your project directory, where the `manifest.json` file is located.
+5. Click **Select Folder** (or **Open** depending on your OS) to load the extension.
+
+Your extension should now appear in the list of installed extensions. 
+
+## Step 9: Start the Program
+
+You're almost ready to go! With everything set up, you can now start the program.
+
+1. In your terminal, make sure your virtual environment is activated.
+2. Start the program by running:
+
+   ```bash
+   python app.py
+   ```
+
+3. Once the program is running, navigate to a website of your choice using Chrome.
+4. Click on the extension icon in the browser toolbar and press the "Summarize now" button.
+The extension will retrieve and display the privacy policy summary and scoring.
