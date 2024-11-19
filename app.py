@@ -156,6 +156,15 @@ def find_privacy_policy_link(url):
         driver.get(url)
         time.sleep(10)
 
+        # Cautionary message about the search limitations
+        print("\nPlease note: While our tool attempts to find the most relevant privacy policy link, it cannot guarantee the accuracy of the result. Privacy policies may vary in structure and naming conventions across different websites, and the tool might not always find the deepest or most specific privacy statements. If the link provided doesn't lead to the expected privacy statement, we recommend navigating directly to the privacy or legal page of the site and re-running for privacy summary.")
+
+        # Check if the user is already on a privacy-related page (based on URL)
+        if any(x in driver.current_url.lower() for x in ['/privacy', '/policy', '/privacystatement', 'privacy-policy']):
+            print("\nAlready on a privacy-related page.")
+            # Return the link directly if we're on a privacy-related page
+            return driver.current_url
+
         # First, find policy/privacy related links
         print("\nSearching for initial policy/privacy links...")
         initial_keywords = ['policy', 'privacy', 'legal']
@@ -182,24 +191,28 @@ def find_privacy_policy_link(url):
         # Navigate to the policy page
         print(f"\nStep 2: Navigating to policy page: {policy_page_link}")
         driver.get(policy_page_link)
-        # time.sleep(5)
 
-        # Look for specific privacy policy link
+        # Now we check if we're on the actual privacy policy statement page (as a secondary check)
+        if any(x in driver.current_url.lower() for x in ['/privacystatement', 'privacy-policy']):
+            print("\nThis is likely the final privacy statement page.")
+            # Return the final privacy statement page link
+            return driver.current_url
+
+        # Look for specific privacy policy link (deeper level links)
         print("\nSearching for specific privacy policy link...")
-        privacy_keywords = ['privacy policy',
-                            'privacy statement', 'data protection']
+        privacy_keywords = ['privacy policy', 'privacy statement', 'data protection']
         privacy_links = find_links_by_keywords(driver, privacy_keywords)
 
         # Filter for the most likely privacy policy link
         final_link = None
         for link in privacy_links:
             href = link['href']
-            # Look for URLs that specifically indicate privacy policy
             if 'privacy' in href.lower() or 'privacy/policy' in href.lower() or 'privacy-policy' in href.lower() or 'privacy policy' in link['text'].lower():
                 final_link = href
                 print(f"\nFound specific privacy policy: {final_link}")
                 break
 
+        # If no specific link is found, return the policy page link
         return final_link if final_link else policy_page_link
 
     except WebDriverException as e:
@@ -211,6 +224,7 @@ def find_privacy_policy_link(url):
     finally:
         if driver:
             driver.quit()
+
 
 
 @app.route('/search_privacy_policy', methods=['POST'])

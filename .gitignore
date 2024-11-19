@@ -220,3 +220,5 @@ cython_debug/
 google-chrome-stable_current_amd64.deb
 privacy_policy_link.txt
 test.py
+start-ollama.sh
+stop-ollama.sh
