@@ -123,6 +123,43 @@ p {
   margin: var(--spacing-base) 0;
 }
 
+.loading-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.dot-animate {
+  display: inline-block;
+  position: relative;
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+.dot-animate::after {
+  content: " ";
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  margin-left: 0.3rem;
+  animation: bounce 1.5s infinite ease-in-out;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+}
+
 @keyframes slideIn {
   from {
     transform: translateY(-0.5rem);
@@ -132,4 +169,83 @@ p {
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+.summary-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.summary-section {
+  margin: 15px 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: var(--spacing-base);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.section-title {
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.score-badge {
+  padding: 0.4rem 1rem;
+  border-radius: 1.5rem;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+  min-width: 60px;
+  text-align: center;
+}
+
+.score-high {
+  background-color: #2ecc71;
+}
+
+.score-medium {
+  background-color: #f1c40f;
+}
+
+.score-low {
+  background-color: #e74c3c;
+}
+
+.section-details {
+  color: var(--text-color);
+  opacity: 0.9;
+  line-height: 1.5;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.overall-summary {
+  margin-top: 20px;
+  padding: var(--spacing-base);
+  background-color: rgba(3, 125, 214, 0.1);
+  border-radius: 0.5rem;
+  border-left: 4px solid var(--primary-color);
+}
+
+.overall-title {
+  color: var(--text-color);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.overall-content {
+  color: var(--text-color);
+  opacity: 0.9;
+  line-height: 1.5;
+  font-size: 0.95rem;
 }

@@ -67,7 +67,7 @@ def handle_summarization(chain, policy_text):
     Returns:
         None
     """
-    print("Summarizing the privacy policy...")
+    print("\nStep 3: Summarizing the privacy policy...\n")
     result = chain.invoke({"policy_text": policy_text})
 
     return result
@@ -197,7 +197,7 @@ def find_privacy_policy_link(url):
             # Look for URLs that specifically indicate privacy policy
             if 'privacy' in href.lower() or 'privacy/policy' in href.lower() or 'privacy-policy' in href.lower() or 'privacy policy' in link['text'].lower():
                 final_link = href
-                print(f"\nFound specific privacy policy: {final_link}")
+                print(f"\nFound specific privacy policy: {final_link}\n")
                 break
 
         return final_link if final_link else policy_page_link

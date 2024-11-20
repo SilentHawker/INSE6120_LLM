@@ -43,7 +43,7 @@ Here is the policy:
     {policy_text}
 
 Your answer should be in this format:
-Here is a comprehensive and easy-to-understand summary of the policy with a score between 1 to 5 points for each element based on the criteria:
+Here is a comprehensive and easy-to-understand summary of the policy with a score between 1 to 5 points for Data Collection, Third-Party Sharing, User Control, Data Retention and Security Measures based on the criteria:
 
 - **Data Collection**: [Provide Score for this element here]
     [Provide details with clear data from the policy regarding this element here]
