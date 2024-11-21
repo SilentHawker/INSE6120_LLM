@@ -11,13 +11,16 @@ $(document).ready(function () {
 
     // Split the text into sections and overall summary
     const parts = summaryText.split("Overall,");
-    const sectionsText = parts[0];
+    let sectionsText = parts[0];
     const overallSummary = parts[1];
 
     console.log("sectionsText :" + sectionsText);
     // Regular expression to capture each section: title, score, details
     const sectionRegex =
       /(?:-\s*)?\*?\*?(.*?):?\s*(\d(?:\.\d+)?)(?:\/5)?\*?\*?\s*([\s\S]*?)(?=(?:\n(?:-\s*)?\*?\*?|$))/g;
+    const parenthesisRegex = /\(.*?\)/g;
+
+    sectionsText = sectionsText.replace(parenthesisRegex, "");
 
     const sections = [];
     let match;

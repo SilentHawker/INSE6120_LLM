@@ -1,6 +1,8 @@
-#  Setup Guide
+#  Summary
 
-This guide will walk you through setting up the environment to run the project using Python and Ollama.
+This project is a browser extension that summarizes website privacy policies. Users can click a button to retrieve and analyze a website’s privacy policy, which is then summarized and presented in an easy-to-understand format. The extension uses a local language model to process the policy and provide a summary with a score.
+
+# Setup Guide
 
 ## Step 1: Clone the Repository
 
@@ -56,10 +58,13 @@ You can verify the installation by typing the following command in your terminal
    ```
 ## Step 3: Install Ollama
 
-Ollama is the tool that will allow you to interact with the LLM (language model).
+Ollama is the tool used to interact with the language model (LLM) in this project.
 
-1. Go to the official [Ollama installation page](https://ollama.com/) and download the version compatible with your operating system (Windows/macOS/Linux).
-2. Once the download is complete, follow the instructions to install it on your machine.
+1. Go to the [Ollama installation page](https://github.com/ollama/ollama/releases/tag/v0.3.12).
+2. Download the version **v0.3.12** compatible with your operating system (Windows/macOS/Linux).
+3. Follow the installation instructions to install Ollama on your machine.
+   
+   > **Note:** Ensure you download version v0.3.12 to avoid compatibility issues with the project.
 
 ## Step 4: Verify Ollama Installation
 
