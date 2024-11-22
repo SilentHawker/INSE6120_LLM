@@ -2,6 +2,14 @@
 
 This project is a browser extension that summarizes website privacy policies. Users can click a button to retrieve and analyze a website’s privacy policy, which is then summarized and presented in an easy-to-understand format. The extension uses a local language model to process the policy and provide a summary with a score.
 
+# Prerequisites 
+
+1. [Python 3.8.8 download page](https://www.python.org/downloads/release/python-388/)
+
+2. [Ollama v0.3.12](https://github.com/ollama/ollama/releases/tag/v0.3.12)
+
+3. [Google Chrome](https://www.google.com/chrome/)
+
 # Setup Guide
 
 ## Step 1: Clone the Repository
